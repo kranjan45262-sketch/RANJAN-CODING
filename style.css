@@ -596,6 +596,8 @@ textarea:focus-visible {
 }
 
 .product-buy strong { color: var(--color-brown-deep); font-size: 0.95rem; }
+.stock-good, .stock-out { font-size: .75rem; font-weight: 600; }.stock-good { color: #22804a; }.stock-out { color: #a64232; }
+.products-loading, .products-empty { grid-column: 1 / -1; text-align: center; padding: 36px; color: var(--color-brown); }
 
 .add-to-cart {
   border: 0;
@@ -941,6 +943,15 @@ textarea:focus-visible {
     width: 100%;
   }
 }
+
+/* Secure admin product editor */
+.admin-dashboard { margin-top: 60px; padding-top: 45px; border-top: 2px solid var(--color-cream-dark); }
+.product-form { max-width: 760px; background: var(--color-cream-dark); padding: 22px; border-radius: var(--radius-md); margin-bottom: 22px; }
+.product-form label { display: block; margin: 12px 0; color: var(--color-brown-deep); font-size: .84rem; font-weight: 600; }
+.product-form input:not([type="checkbox"]), .product-form textarea { width: 100%; display: block; margin-top: 6px; padding: 10px 12px; border: 1px solid rgba(107,66,38,.2); border-radius: 8px; background: white; font: .9rem var(--font-body); }
+.admin-check { display: flex !important; align-items: center; gap: 8px; }.admin-check input { width: auto; }
+.product-form-actions { display: flex; align-items: center; gap: 18px; margin-top: 15px; }
+.admin-products { display: grid; gap: 10px; max-width: 900px; }.admin-product-row { display: flex; justify-content: space-between; gap: 20px; align-items: center; background: white; padding: 15px 18px; border-radius: 10px; box-shadow: var(--shadow-soft); }.admin-product-row strong, .admin-product-row span { display: block; }.admin-product-row span { color: var(--color-brown); font-size: .8rem; margin-top: 4px; }.admin-product-row .text-button { margin-left: 14px; }
 
 .form-group {
   margin-bottom: 20px;

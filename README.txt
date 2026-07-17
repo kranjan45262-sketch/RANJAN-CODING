@@ -24,6 +24,11 @@ Yeh project static HTML/JS hai, isliye Next.js ke page.tsx/middleware.ts ki zaro
 3. Authentication > Providers me Email enable karein.
 4. Supabase-config.js me project URL aur publishable key set karein.
 5. Site reload karke customer account banayein. Orders Supabase ke orders/order_items tables me milenge.
+6. Owner account verify hone ke baad SQL Editor me admin role statement run karein. Isse website ke `#manage-orders` section me Product Admin panel unlock hoga.
+
+PRODUCT ADMIN
+-------------
+Owner login ke baad `#manage-orders` par Manage products panel dikhega. Yahin se product name, price, image path, description, active visibility aur stock status add/edit/delete karein. Public product cards ab Supabase ke `products` table se load hote hain; frontend me product catalog hardcoded nahi hai.
 
 IMPORTANT: Publishable/anon key browser me rakhna theek hai. Service-role key kabhi website me na daalein.
 
@@ -35,6 +40,4 @@ Custom domain: hosting dashboard me apna domain add karke DNS records set karein
 
 PRICE UPDATE
 ------------
-script.js ke shuru me catalog array hai. Har entry [product name, price] format me hai:
-['Bread', 40], ['Cakes', 500]
-Wahan number badalne par product card, cart total, UPI amount aur WhatsApp order summary sab update ho jayega.
+Frontend me pricing hardcoded nahi hai. Owner login karke `#manage-orders` ke Product Admin panel me price edit karein. Isse product card, cart total, UPI amount aur WhatsApp order summary automatically update ho jayega.

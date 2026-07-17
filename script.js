@@ -3,10 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const whatsappNumber = '919973052333';
   const upiId = 'chanchalagoldencrust@ptyes';
   const remoteClient = window.CGC_SUPABASE_URL && window.CGC_SUPABASE_ANON_KEY && window.supabase ? window.supabase.createClient(window.CGC_SUPABASE_URL, window.CGC_SUPABASE_ANON_KEY) : null;
-  const catalog = [
-    ['Bread', 40], ['Cakes', 500], ['Puffs', 30], ['Cookies', 120], ['Buns & Rolls', 35],
-    ['Snacks', 80], ['Rusk', 90], ['Muffins', 50], ['Biscuits', 100]
-  ];
+  let products = [];
   let cart = JSON.parse(localStorage.getItem('cgc-cart') || '[]');
   let orders = JSON.parse(localStorage.getItem('cgc-orders') || '[]');
 
@@ -16,13 +13,21 @@ document.addEventListener('DOMContentLoaded', function () {
   const saveCart = function () { localStorage.setItem('cgc-cart', JSON.stringify(cart)); };
   const saveOrders = function () { localStorage.setItem('cgc-orders', JSON.stringify(orders)); };
 
-  // Turn the existing product showcase into a usable menu without changing product photos.
-  document.querySelectorAll('.product-card').forEach(function (card, index) {
-    const item = catalog[index];
-    if (!item) return;
-    const oldText = card.querySelector('p');
-    oldText.insertAdjacentHTML('afterend', '<div class="product-buy"><span>Starting at <strong>' + format(item[1]) + '</strong></span><button type="button" class="add-to-cart" data-name="' + item[0] + '" data-price="' + item[1] + '">Add <i class="fa-solid fa-plus"></i></button></div>');
-  });
+  function renderProducts() {
+    const target = $('#products-grid');
+    if (!products.length) { target.innerHTML = '<p class="products-empty">Products abhi available nahi hain. Admin Supabase dashboard se products add karein.</p>'; return; }
+    target.innerHTML = products.map(function (item) {
+      const stock = item.in_stock ? '<span class="stock-good">In stock</span><button type="button" class="add-to-cart" data-id="' + escapeHtml(item.id) + '" data-name="' + escapeHtml(item.name) + '" data-price="' + item.price + '">Add <i class="fa-solid fa-plus"></i></button>' : '<span class="stock-out">Currently unavailable</span>';
+      return '<article class="product-card"><div class="product-image"><img src="' + escapeHtml(item.image_url) + '" alt="' + escapeHtml(item.name) + '" loading="lazy"></div><h3>' + escapeHtml(item.name) + '</h3><p>' + escapeHtml(item.description) + '</p><div class="product-buy"><span>Starting at <strong>' + format(Number(item.price)) + '</strong></span>' + stock + '</div></article>';
+    }).join('');
+  }
+
+  async function loadProducts() {
+    if (!remoteClient) { $('#products-grid').innerHTML = '<p class="products-empty">Supabase connection configure karke products load karein.</p>'; return; }
+    const result = await remoteClient.from('products').select('id, name, price, image_url, description, in_stock, active').eq('active', true).order('created_at', { ascending: true });
+    if (result.error) { $('#products-grid').innerHTML = '<p class="products-empty">Products load nahi ho paaye. Supabase products table setup check karein.</p>'; return; }
+    products = result.data || []; renderProducts();
+  }
 
   function updateCounts() {
     const count = cart.reduce(function (sum, item) { return sum + item.qty; }, 0);
@@ -73,11 +78,40 @@ document.addEventListener('DOMContentLoaded', function () {
       orders = remoteOrders.data.map(function (item) { return { id: item.id, name: item.customer_name, phone: item.customer_phone, type: item.order_type, payment: item.payment_method, transaction: item.transaction_id, total: Number(item.total), status: item.status, created: new Date(item.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }), items: (item.order_items || []).map(function (line) { return { name: line.product_name, price: Number(line.price), qty: line.quantity }; }) }; });
       saveOrders(); renderOrders();
     }
+    const currentProfile = await remoteClient.from('profiles').select('role').eq('id', userResult.data.user.id).single();
+    setAdminMode(currentProfile.data && currentProfile.data.role === 'admin');
     const remoteCustomers = await remoteClient.from('profiles').select('full_name, phone, created_at').order('created_at', { ascending: false });
     if (!remoteCustomers.error && remoteCustomers.data && remoteCustomers.data.length) {
       $('#registered-customers').innerHTML = remoteCustomers.data.map(function (customer) { return '<article class="customer-card"><h3>' + escapeHtml(customer.full_name) + '</h3><p>' + escapeHtml(customer.phone) + '</p><small>Registered: ' + escapeHtml(new Date(customer.created_at).toLocaleString('en-IN')) + '</small></article>'; }).join('');
     }
   }
+
+  function setAdminMode(isAdmin) {
+    $('#admin-dashboard').hidden = !isAdmin;
+    if (isAdmin) { loadAdminProducts(); }
+  }
+
+  function renderAdminProducts() {
+    const target = $('#admin-products');
+    if (!products.length) { target.innerHTML = '<p class="empty-orders">No products found. Add your first product.</p>'; return; }
+    target.innerHTML = products.map(function (item) { return '<div class="admin-product-row"><div><strong>' + escapeHtml(item.name) + '</strong><span>' + format(Number(item.price)) + ' · ' + (item.in_stock ? 'In stock' : 'Out of stock') + '</span></div><div><button class="text-button edit-product" data-id="' + escapeHtml(item.id) + '" type="button">Edit</button><button class="text-button delete-product" data-id="' + escapeHtml(item.id) + '" type="button">Delete</button></div></div>'; }).join('');
+  }
+
+  async function loadAdminProducts() {
+    if (!remoteClient) return;
+    const result = await remoteClient.from('products').select('id, name, price, image_url, description, in_stock, active').order('created_at', { ascending: true });
+    if (!result.error) { products = result.data || []; renderProducts(); renderAdminProducts(); }
+  }
+
+  function resetProductForm() { $('#product-form').reset(); $('#product-id').value = ''; $('#product-form').hidden = true; $('#product-note').textContent = ''; }
+  $('#new-product').addEventListener('click', function () { $('#product-form').reset(); $('#product-id').value = ''; $('#product-form').hidden = false; $('#product-name').focus(); });
+  $('#cancel-product').addEventListener('click', resetProductForm);
+  $('#product-form').addEventListener('submit', async function (event) {
+    event.preventDefault(); const payload = { name: $('#product-name').value.trim(), price: Number($('#product-price').value), image_url: $('#product-image').value.trim(), description: $('#product-description').value.trim(), in_stock: $('#product-in-stock').checked, active: true, updated_at: new Date().toISOString() }; const id = $('#product-id').value; const result = id ? await remoteClient.from('products').update(payload).eq('id', id) : await remoteClient.from('products').insert(payload); if (result.error) { $('#product-note').textContent = result.error.message; return; } resetProductForm(); await loadAdminProducts();
+  });
+  $('#admin-products').addEventListener('click', async function (event) {
+    const id = event.target.dataset.id; if (!id) return; const item = products.find(function (entry) { return entry.id === id; }); if (event.target.classList.contains('edit-product')) { $('#product-id').value = item.id; $('#product-name').value = item.name; $('#product-price').value = item.price; $('#product-image').value = item.image_url; $('#product-description').value = item.description; $('#product-in-stock').checked = item.in_stock; $('#product-form').hidden = false; $('#product-name').focus(); } if (event.target.classList.contains('delete-product') && window.confirm('Is product ko delete karna hai?')) { await remoteClient.from('products').update({ active: false }).eq('id', id); await loadAdminProducts(); }
+  });
 
   document.addEventListener('click', function (event) {
     const add = event.target.closest('.add-to-cart');
@@ -145,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function closeAuth() { $('#auth-modal').classList.remove('is-open'); $('#auth-modal').setAttribute('aria-hidden', 'true'); document.body.classList.remove('modal-open'); }
   $('#account-button').addEventListener('click', openAuth); $('.close-auth').addEventListener('click', closeAuth); $('#auth-modal').addEventListener('click', function (event) { if (event.target === this) closeAuth(); });
   document.querySelectorAll('.auth-tab').forEach(function (button) { button.addEventListener('click', function () { const signup = button.dataset.authView === 'signup'; document.querySelectorAll('.auth-tab').forEach(function (item) { item.classList.toggle('active', item === button); }); $('#login-form').hidden = signup; $('#signup-form').hidden = !signup; $('#auth-note').textContent = ''; }); });
-  $('#signup-form').addEventListener('submit', async function (event) { event.preventDefault(); const customer = { name: $('#signup-name').value.trim(), email: $('#signup-email').value.trim().toLowerCase(), phone: $('#signup-phone').value.trim(), passwordHash: await hashPassword($('#signup-password').value), created: new Date().toLocaleString('en-IN') }; if (remoteClient) { const result = await remoteClient.auth.signUp({ email: customer.email, password: $('#signup-password').value }); if (result.error) { $('#auth-note').textContent = result.error.message; return; } const user = result.data.user; if (user) await remoteClient.from('profiles').insert({ id: user.id, full_name: customer.name, phone: customer.phone }); } else { if (customers.some(function (item) { return item.email === customer.email; })) { $('#auth-note').textContent = 'Is email se account pehle se bana hua hai. Login karein.'; return; } customers.push(customer); saveCustomers(); } setActive(customer); renderCustomers(); $('#auth-note').textContent = remoteClient ? 'Account create ho gaya. Email verify karke login karein.' : 'Account create ho gaya. Ab aap order kar sakte hain.'; setTimeout(closeAuth, 1000); });
+  $('#signup-form').addEventListener('submit', async function (event) { event.preventDefault(); const customer = { name: $('#signup-name').value.trim(), email: $('#signup-email').value.trim().toLowerCase(), phone: $('#signup-phone').value.trim(), passwordHash: await hashPassword($('#signup-password').value), created: new Date().toLocaleString('en-IN') }; if (remoteClient) { const result = await remoteClient.auth.signUp({ email: customer.email, password: $('#signup-password').value, options: { data: { full_name: customer.name, phone: customer.phone } } }); if (result.error) { $('#auth-note').textContent = result.error.message; return; } } else { if (customers.some(function (item) { return item.email === customer.email; })) { $('#auth-note').textContent = 'Is email se account pehle se bana hua hai. Login karein.'; return; } customers.push(customer); saveCustomers(); } setActive(customer); renderCustomers(); $('#auth-note').textContent = remoteClient ? 'Account create ho gaya. Email verify karke login karein.' : 'Account create ho gaya. Ab aap order kar sakte hain.'; setTimeout(closeAuth, 1000); });
   $('#login-form').addEventListener('submit', async function (event) { event.preventDefault(); const email = $('#login-email').value.trim().toLowerCase(); let found; if (remoteClient) { const result = await remoteClient.auth.signInWithPassword({ email: email, password: $('#login-password').value }); if (result.error) { $('#auth-note').textContent = result.error.message; return; } const profile = await remoteClient.from('profiles').select('full_name, phone').eq('id', result.data.user.id).single(); found = { name: profile.data ? profile.data.full_name : email, email: email, phone: profile.data ? profile.data.phone : '' }; } else { const passwordHash = await hashPassword($('#login-password').value); found = customers.find(function (item) { return item.email === email && item.passwordHash === passwordHash; }); if (!found) { $('#auth-note').textContent = 'Email ya password galat hai.'; return; } } setActive(found); await syncRemoteData(); $('#auth-note').textContent = 'Login successful.'; setTimeout(closeAuth, 600); });
 
   // Existing site behaviour
@@ -154,5 +188,5 @@ document.addEventListener('DOMContentLoaded', function () {
   mainNav.querySelectorAll('a').forEach(function (link) { link.addEventListener('click', function () { hamburger.classList.remove('open'); mainNav.classList.remove('open'); }); });
   const scrollTopBtn = $('#scroll-top'); window.addEventListener('scroll', function () { scrollTopBtn.classList.toggle('visible', window.scrollY > 400); }); scrollTopBtn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
   $('#year').textContent = new Date().getFullYear();
-  updateCounts(); renderOrders(); renderCustomers(); if (activeCustomer) { setActive(activeCustomer); syncRemoteData(); }
+  updateCounts(); renderOrders(); renderCustomers(); setAdminMode(false); loadProducts(); if (activeCustomer) { setActive(activeCustomer); syncRemoteData(); }
 });

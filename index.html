@@ -186,89 +186,9 @@
         Freshly baked every day, using premium ingredients and homemade recipes.
       </p>
 
-      <div class="products-grid">
+      <div class="products-grid" id="products-grid" aria-live="polite">
 
-        <!-- Product Card: Bread -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-bread.jpg" alt="Fresh Bread" />
-          </div>
-          <h3>Bread</h3>
-          <p>Soft, fresh and baked daily with premium flour.</p>
-        </div>
-
-        <!-- Product Card: Cakes -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-cakes.jpg" alt="Fresh Cakes" />
-          </div>
-          <h3>Cakes</h3>
-          <p>Birthday, anniversary aur custom cakes - always fresh.</p>
-        </div>
-
-        <!-- Product Card: Puffs -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-puffs.jpg" alt="Puffs" />
-          </div>
-          <h3>Puffs</h3>
-          <p>Crispy, flaky and full of flavour.</p>
-        </div>
-
-        <!-- Product Card: Cookies -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-cookies.jpg" alt="Cookies" />
-          </div>
-          <h3>Cookies</h3>
-          <p>Crunchy homemade cookies for every mood.</p>
-        </div>
-
-        <!-- Product Card: Buns & Rolls -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-buns.jpg" alt="Buns and Rolls" />
-          </div>
-          <h3>Buns & Rolls</h3>
-          <p>Soft and fluffy, perfect for every meal.</p>
-        </div>
-
-        <!-- Product Card: Snacks -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-snacks.jpg" alt="Snacks" />
-          </div>
-          <h3>Snacks</h3>
-          <p>Tasty evening snacks, made fresh daily.</p>
-        </div>
-
-        <!-- Product Card: Rusk -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-rusk.jpg" alt="Rusk" />
-          </div>
-          <h3>Rusk</h3>
-          <p>Perfect crunchy companion for your chai.</p>
-        </div>
-
-        <!-- Product Card: Muffins -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-muffins.jpg" alt="Muffins" />
-          </div>
-          <h3>Muffins</h3>
-          <p>Soft, moist muffins in delicious flavours.</p>
-        </div>
-
-        <!-- Product Card: Biscuits -->
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/product-biscuits.jpg" alt="Biscuits" />
-          </div>
-          <h3>Biscuits</h3>
-          <p>Crispy, buttery biscuits made the traditional way.</p>
-        </div>
-
+        <p class="products-loading">Loading fresh products…</p>
       </div>
       <div class="order-menu-cta">
         <p>Pasand ke products cart mein add karke apna order bhejein.</p>
@@ -573,7 +493,19 @@
         <div class="manager-heading customer-heading"><div><p class="section-eyebrow">Customer database</p><h2 class="section-title">Registered customers</h2><p>Is browser par banaye gaye customer profiles.</p></div></div>
         <div id="registered-customers" class="registered-customers"><p class="empty-orders">Abhi koi customer registered nahi hai.</p></div>
       </div>
-      <p class="manager-notice"><i class="fa-solid fa-circle-info"></i> Website ko live karne se pehle central dashboard ke liye database connect karna zaroori hoga. Tab har customer ka order yahan aapke login mein dikhega.</p>
+      <p class="manager-notice"><i class="fa-solid fa-circle-info"></i> Orders aur products Supabase se load hote hain. Sirf role=admin account ko complete management access मिलता है; बाकी customers केवल अपना account/order देखते हैं।</p>
+      <div class="admin-dashboard" id="admin-dashboard" hidden>
+        <div class="manager-heading"><div><p class="section-eyebrow">Secure admin</p><h2 class="section-title">Manage products</h2><p>Sirf Supabase admin role wala account products add, edit, stock aur visibility control kar sakta hai.</p></div><button class="btn btn-primary" id="new-product" type="button"><i class="fa-solid fa-plus"></i> Add product</button></div>
+        <form id="product-form" class="product-form" hidden>
+          <input type="hidden" id="product-id">
+          <div class="checkout-grid"><label>Product name<input id="product-name" required maxlength="80"></label><label>Price (₹)<input id="product-price" required type="number" min="0" step="0.01"></label></div>
+          <label>Image path or public URL<input id="product-image" required placeholder="images/product-bread.jpg"></label>
+          <label>Description<textarea id="product-description" rows="2" required maxlength="240"></textarea></label>
+          <label class="admin-check"><input id="product-in-stock" type="checkbox" checked> Available / in stock</label>
+          <div class="product-form-actions"><button class="btn btn-primary" type="submit">Save product</button><button class="text-button" id="cancel-product" type="button">Cancel</button></div><p class="form-note" id="product-note" aria-live="polite"></p>
+        </form>
+        <div id="admin-products" class="admin-products"><p class="empty-orders">Admin products load ho rahe hain…</p></div>
+      </div>
     </div>
   </section>
 
