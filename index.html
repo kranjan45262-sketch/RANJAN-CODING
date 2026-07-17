@@ -452,10 +452,18 @@
         <label>Full name<input id="signup-name" required autocomplete="name" placeholder="Apna poora naam"></label>
         <label>Mobile number<input id="signup-phone" required inputmode="tel" pattern="[0-9+ -]{10,15}" autocomplete="tel" placeholder="10 digit mobile number"></label>
         <label>Email address<input id="signup-email" type="email" required autocomplete="email" placeholder="name@example.com"></label>
+        <label>Address line<input id="signup-address-line" autocomplete="street-address" placeholder="House / street / area"></label>
+        <div class="checkout-grid"><label>City<input id="signup-city" autocomplete="address-level2" placeholder="City"></label><label>Pincode<input id="signup-pincode" inputmode="numeric" pattern="[0-9]{6}" autocomplete="postal-code" placeholder="6 digit pincode"></label></div>
         <label>Create password<input id="signup-password" type="password" required minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters"></label>
         <button class="btn btn-primary" type="submit">Create my account</button>
       </form>
       <p id="auth-note" class="form-note" aria-live="polite"></p>
+      <div id="customer-profile-panel" class="customer-profile-panel" hidden>
+        <h3>My profile & saved addresses</h3>
+        <form id="profile-form" class="auth-form"><label>Full name<input id="profile-name" required></label><label>Mobile number<input id="profile-phone" required inputmode="tel"></label><label>Address line<input id="profile-address-line" placeholder="House / street / area"></label><div class="checkout-grid"><label>City<input id="profile-city"></label><label>Pincode<input id="profile-pincode" inputmode="numeric" pattern="[0-9]{6}"></label></div><button class="btn btn-primary" type="submit">Save profile</button><p id="profile-note" class="form-note"></p></form>
+        <form id="address-form" class="auth-form"><h4>Add saved address</h4><label>Label<input id="address-label" placeholder="Home / Work"></label><label>Address line<input id="address-line" required></label><div class="checkout-grid"><label>City<input id="address-city" required></label><label>Pincode<input id="address-pincode" required inputmode="numeric" pattern="[0-9]{6}"></label></div><button class="btn btn-whatsapp" type="submit">Save address</button></form>
+        <div id="saved-addresses" class="saved-addresses"></div><button class="text-button" id="logout-button" type="button">Logout</button>
+      </div>
     </div>
   </div>
 
@@ -475,7 +483,7 @@
           <label>Mobile number<input id="order-phone" required inputmode="tel" pattern="[0-9+ -]{10,15}" placeholder="10 digit mobile number" autocomplete="tel"></label>
         </div>
         <label>Order type<select id="order-type"><option value="Pickup">Shop pickup</option><option value="Delivery">Home delivery</option></select></label>
-        <label id="address-field">Delivery address<textarea id="order-address" rows="2" placeholder="Ghar/area ka poora address"></textarea></label>
+        <label id="address-field">Saved address<select id="saved-address-select"><option value="new">Use a new address</option></select><textarea id="order-address" rows="2" placeholder="Ghar/area ka poora address"></textarea><input type="hidden" id="order-address-id"></label>
         <label>Special instruction (optional)<textarea id="order-note" rows="2" placeholder="Cake message, preferred time, etc."></textarea></label>
         <fieldset class="payment-options"><legend>Payment method</legend><label><input type="radio" name="payment" value="UPI" checked> UPI payment</label><label><input type="radio" name="payment" value="Cash on delivery"> Cash on delivery / pickup</label></fieldset>
         <div id="upi-checkout" class="upi-checkout"><p>UPI ID: <strong>chanchalagoldencrust@ptyes</strong></p><a id="checkout-upi-link" class="btn btn-primary" href="upi://pay?pa=chanchalagoldencrust@ptyes&pn=Chanchala%20Golden%20Crust&cu=INR"><i class="fa-solid fa-mobile-screen-button"></i> Pay total via UPI</a><label>UPI transaction ID <input id="transaction-id" placeholder="Payment ke baad UTR / transaction ID"></label></div>
