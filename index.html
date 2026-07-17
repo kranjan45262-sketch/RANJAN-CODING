@@ -48,6 +48,7 @@
       <nav class="main-nav" id="main-nav">
         <a href="#about">About</a>
         <a href="#products">Products</a>
+        <a href="#order-online">Order Online</a>
         <a href="#bulk-orders">Bulk Orders</a>
         <a href="#why-us">Why Us</a>
         <a href="#gallery">Gallery</a>
@@ -55,9 +56,10 @@
         <a href="#contact">Contact</a>
       </nav>
 
-      <a href="https://wa.me/919973052333?text=Namaste!%20Main%20Chanchala%20Golden%20Crust%20se%20order%20karna%20chahta%2Fchahti%20hoon."
-         class="btn btn-whatsapp nav-cta" target="_blank" rel="noopener">
-        <i class="fa-brands fa-whatsapp"></i> Order Now
+      <button class="account-button open-auth" id="account-button" type="button"><i class="fa-regular fa-user"></i> <span id="account-label">Login</span></button>
+
+      <button class="btn btn-primary nav-cta open-cart" type="button">
+        <i class="fa-solid fa-bag-shopping"></i> Order Now <span class="cart-count" aria-label="Cart items">0</span>
       </a>
 
       <!-- Mobile menu button -->
@@ -87,10 +89,7 @@
       <p class="hero-hindi">घरेलू स्वाद, आपके विश्वास के साथ</p>
 
       <div class="hero-actions">
-        <a href="https://wa.me/919973052333?text=Namaste!%20Main%20order%20karna%20chahta%2Fchahti%20hoon."
-           class="btn btn-whatsapp btn-large" target="_blank" rel="noopener">
-          <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
-        </a>
+        <button class="btn btn-primary btn-large open-cart" type="button"><i class="fa-solid fa-bag-shopping"></i> Order Online</button>
         <a href="#products" class="btn btn-outline btn-large">
           View Products
         </a>
@@ -271,6 +270,22 @@
         </div>
 
       </div>
+      <div class="order-menu-cta">
+        <p>Pasand ke products cart mein add karke apna order bhejein.</p>
+        <button class="btn btn-primary open-cart" type="button"><i class="fa-solid fa-bag-shopping"></i> Start Your Order <span class="cart-count">0</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONLINE ORDERING: cart, checkout and order management are handled by script.js -->
+  <section class="order-online" id="order-online">
+    <div class="container order-online-inner">
+      <div>
+        <p class="section-eyebrow">Simple & Secure</p>
+        <h2 class="section-title">Order directly from our website</h2>
+        <p>Cart mein products add karein, pickup/delivery details bharein aur UPI ya cash-on-delivery choose karein. Order ka complete summary WhatsApp par bhi turant milta hai.</p>
+      </div>
+      <button class="btn btn-primary btn-large open-cart" type="button"><i class="fa-solid fa-bag-shopping"></i> Open Order Cart <span class="cart-count">0</span></button>
     </div>
   </section>
 
@@ -445,13 +460,40 @@
       </div>
 
       <div class="contact-form-wrap">
-        <!--
-          NOTE (IMPORTANT):
-          Yeh form abhi sirf design ke liye hai. Isse actual email
-          aapko tab tak nahi milega jab tak aap ise kisi form service
-          (jaise Formspree, Web3Forms, Google Forms) se connect na karein.
-          script.js me is baare me comment likha hai.
-        -->
+
+        <!-- ============================================================
+             UPI PAYMENT BLOCK
+             Yeh direct UPI payment ka option hai - customer chahe to
+             yahan se seedha aapke UPI ID (chanchalagoldencrust@ptyes)
+             par payment kar sakta hai. Koi gateway ya fee nahi lagti.
+
+             YAHAN REPLACE KAREIN agar UPI ID change ho:
+             1. Neeche "upi-pay-btn" ke href me UPI ID badlein
+             2. Naya QR generate karwana ho to bata dein
+        ============================================================ -->
+        <div class="upi-payment-box">
+          <h3><i class="fa-solid fa-indian-rupee-sign"></i> Pay via UPI</h3>
+          <p class="upi-subtext">Mobile par UPI app (GPay / PhonePe / Paytm) se seedha payment karein</p>
+
+          <div class="upi-content">
+            <img src="images/upi-qr.png" alt="Chanchala Golden Crust UPI QR Code" class="upi-qr" />
+
+            <div class="upi-actions">
+              <a href="upi://pay?pa=chanchalagoldencrust@ptyes&pn=Chanchala%20Golden%20Crust&cu=INR"
+                 class="btn btn-primary upi-btn" id="upi-pay-btn">
+                <i class="fa-solid fa-mobile-screen-button"></i> Pay via UPI App
+              </a>
+              <p class="upi-id-text">UPI ID: <strong>chanchalagoldencrust@ptyes</strong></p>
+              <p class="upi-note">
+                <i class="fa-solid fa-circle-info"></i>
+                Yeh button sirf mobile phone par kaam karega (jahan UPI app installed ho).
+                Computer/laptop se order kar rahe hain to bas QR ko apne phone ke UPI app se scan kar lein.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- General enquiries are sent to the business WhatsApp by script.js. -->
         <form id="contact-form" class="contact-form">
           <div class="form-group">
             <label for="name">Your Name</label>
@@ -471,6 +513,67 @@
           <p class="form-note" id="form-note"></p>
         </form>
       </div>
+    </div>
+  </section>
+
+  <!-- Cart and checkout panel -->
+  <div class="order-modal" id="auth-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div class="auth-panel">
+      <button class="icon-button close-auth" type="button" aria-label="Close login"><i class="fa-solid fa-xmark"></i></button>
+      <p class="section-eyebrow">Welcome to</p><h2 id="auth-modal-title">Chanchala Golden Crust</h2>
+      <p class="auth-intro">Order karne ke liye apna account banayein ya login karein. Aapki details aur orders securely save rahenge.</p>
+      <div class="auth-tabs"><button class="auth-tab active" type="button" data-auth-view="login">Login</button><button class="auth-tab" type="button" data-auth-view="signup">New account</button></div>
+      <form id="login-form" class="auth-form">
+        <label>Email address<input id="login-email" type="email" required autocomplete="email" placeholder="name@example.com"></label>
+        <label>Password<input id="login-password" type="password" required minlength="6" autocomplete="current-password" placeholder="Minimum 6 characters"></label>
+        <button class="btn btn-primary" type="submit">Login securely</button>
+      </form>
+      <form id="signup-form" class="auth-form" hidden>
+        <label>Full name<input id="signup-name" required autocomplete="name" placeholder="Apna poora naam"></label>
+        <label>Mobile number<input id="signup-phone" required inputmode="tel" pattern="[0-9+ -]{10,15}" autocomplete="tel" placeholder="10 digit mobile number"></label>
+        <label>Email address<input id="signup-email" type="email" required autocomplete="email" placeholder="name@example.com"></label>
+        <label>Create password<input id="signup-password" type="password" required minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters"></label>
+        <button class="btn btn-primary" type="submit">Create my account</button>
+      </form>
+      <p id="auth-note" class="form-note" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <div class="order-modal" id="order-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="order-modal-title">
+    <div class="order-panel">
+      <div class="order-panel-head">
+        <div><p class="section-eyebrow">Your order</p><h2 id="order-modal-title">Order Cart</h2></div>
+        <button class="icon-button close-cart" type="button" aria-label="Close order cart"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="cart-items" class="cart-items"></div>
+      <div class="cart-total"><span>Order total</span><strong id="cart-total">₹0</strong></div>
+
+      <form id="checkout-form" class="checkout-form">
+        <h3>Delivery details</h3>
+        <div class="checkout-grid">
+          <label>Full name<input id="order-name" required placeholder="Apna naam" autocomplete="name"></label>
+          <label>Mobile number<input id="order-phone" required inputmode="tel" pattern="[0-9+ -]{10,15}" placeholder="10 digit mobile number" autocomplete="tel"></label>
+        </div>
+        <label>Order type<select id="order-type"><option value="Pickup">Shop pickup</option><option value="Delivery">Home delivery</option></select></label>
+        <label id="address-field">Delivery address<textarea id="order-address" rows="2" placeholder="Ghar/area ka poora address"></textarea></label>
+        <label>Special instruction (optional)<textarea id="order-note" rows="2" placeholder="Cake message, preferred time, etc."></textarea></label>
+        <fieldset class="payment-options"><legend>Payment method</legend><label><input type="radio" name="payment" value="UPI" checked> UPI payment</label><label><input type="radio" name="payment" value="Cash on delivery"> Cash on delivery / pickup</label></fieldset>
+        <div id="upi-checkout" class="upi-checkout"><p>UPI ID: <strong>chanchalagoldencrust@ptyes</strong></p><a id="checkout-upi-link" class="btn btn-primary" href="upi://pay?pa=chanchalagoldencrust@ptyes&pn=Chanchala%20Golden%20Crust&cu=INR"><i class="fa-solid fa-mobile-screen-button"></i> Pay total via UPI</a><label>UPI transaction ID <input id="transaction-id" placeholder="Payment ke baad UTR / transaction ID"></label></div>
+        <button class="btn btn-whatsapp btn-large submit-order" type="submit"><i class="fa-brands fa-whatsapp"></i> Place order & send on WhatsApp</button>
+        <p id="checkout-note" class="form-note" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <section class="manage-orders" id="manage-orders">
+    <div class="container">
+      <div class="manager-heading"><div><p class="section-eyebrow">For the owner</p><h2 class="section-title">Order Manager</h2><p>Is device par place huye orders ko status ke saath manage karein.</p></div><button id="clear-orders" class="text-button" type="button">Clear local list</button></div>
+      <div id="owner-orders" class="owner-orders"><p class="empty-orders">Abhi is browser mein koi order nahi hai.</p></div>
+      <div class="customer-manager">
+        <div class="manager-heading customer-heading"><div><p class="section-eyebrow">Customer database</p><h2 class="section-title">Registered customers</h2><p>Is browser par banaye gaye customer profiles.</p></div></div>
+        <div id="registered-customers" class="registered-customers"><p class="empty-orders">Abhi koi customer registered nahi hai.</p></div>
+      </div>
+      <p class="manager-notice"><i class="fa-solid fa-circle-info"></i> Website ko live karne se pehle central dashboard ke liye database connect karna zaroori hoga. Tab har customer ka order yahan aapke login mein dikhega.</p>
     </div>
   </section>
 
@@ -529,6 +632,8 @@
     <i class="fa-solid fa-arrow-up"></i>
   </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
